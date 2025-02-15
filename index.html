@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(to right, #14153F, #724EA7);
+            color: white;
+            text-align: center;
+            padding: 5vh 5vw;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 90%;
+            border-radius: 10px;
+            margin: auto;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .container input{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input {
+            width: 90%;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 1rem;
+            margin:1rem;
+        }
+
+        button {
+            width: 100%;
+            max-width: 200px;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            background-color: #ff9800;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #e68900;
+        }
+
+        .weather_info {
+            margin-top: 20px;
+        }
+
+        .weather_info img {
+            width: 80px;
+        }
+
+        @media(max-width:480px) {
+            body {
+                padding: 3vh 3vw;
+                font-size: 14px;
+            }
+
+            .container {
+                width: 95%;
+                padding: 15px;
+            }
+
+            input,
+            button {
+                width: 100%;
+                font-size: 1rem;
+            }
+
+            .weather_info img {
+                width: 70px;
+            }
+        }
+
+        @media (min-width: 481px) and (max-width: 767px) {
+            .container {
+                max-width: 90%;
+                padding: 18px;
+            }
+
+            input,
+            button {
+                font-size: 1rem;
+                width: 95%;
+            }
+
+            .weather_info img {
+                width: 75px;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .container {
+                max-width: 80%;
+                padding: 20px;
+            }
+
+            input {
+                width: 80%;
+                font-size: 1.1rem;
+            }
+
+            button {
+                width: 60%;
+                font-size: 1.1rem;
+            }
+
+            .weather_info img {
+                width: 90px;
+            }
+        }
+
+        @media (min-width: 1025px) and (max-width: 1440px) {
+            .container {
+                max-width: 50%;
+            }
+
+            input,
+            button {
+                font-size: 1.2rem;
+                padding: 12px;
+            }
+
+            .weather_info img {
+                width: 100px;
+            }
+        }
+
+        @media (min-width: 1441px) {
+            .container {
+                max-width: 40%;
+                padding: 25px;
+            }
+
+            input {
+                font-size: 1.3rem;
+            }
+
+            button {
+                width: 50%;
+                font-size: 1.3rem;
+                padding: 14px;
+            }
+
+            .weather_info img {
+                width: 110px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Weather App</h2>
+    <div class="container">
+        <input type="text" id="city" placeholder="Enter city name">
+        <button onclick="getWeatherByCity()">Search</button>
+        <button onclick="getWeatherByLocation()">Use My Location</button>
+        <div class="weather_info" id="weather_info"></div>
+    </div>
+    <script>
+        const apiKey = "03a97cdf77ae7cdd10d0897465f85253";
+        function getWeatherByCity() {
+            const city = document.getElementById("city").value;
+            if (city) {
+                fetchWeather(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`);
+            }
+            else {
+                alert("Please enter a city name!");
+            }
+        }
+        function getWeatherByLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    fetchWeather(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`);
+                }, () => {
+                    alert("Geolocation access denied. Please enter a location manually.");
+                });
+            } else {
+                alert("Geolocation is not supported by your browser.");
+            }
+        }
+        function fetchWeather(url) {
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.cod == 200) {
+                        document.getElementById("weather_info").innerHTML = `
+                        <h4>${data.name},${data.sys.country}</h4>
+                        <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="Weather Icon">
+                        <p>Temperature : ${data.main.temp}°C</p>
+                        <p>Condition : ${data.weather[0].description}</p>
+                        <p>Humidity : ${data.main.humidity}</p>
+                        <p>Wind Speed : ${data.wind.speed}</p> `
+                    }
+                    else {
+                        alert("Location not found!Try again.");
+                    }
+                })
+                .catch(error => console.error("Error fetching weather : ", error));
+        }
+    </script>
+</body>
+
+</html>
